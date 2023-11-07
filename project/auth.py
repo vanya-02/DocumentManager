@@ -1,16 +1,17 @@
 # the auth routes for the app
-
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required
 from .models import Dmuser
 from . import db
+from .forms import SignUpForm, LogInForm
 
 auth = Blueprint('auth', __name__)
 
 @auth.route('/login')
 def login():
-    return render_template('login.html')
+    form = LogInForm()
+    return render_template('login.html', form=form)
 
 @auth.route('/login', methods=['POST'])
 def login_post():
@@ -30,9 +31,11 @@ def login_post():
     login_user(user, remember=remember)
     return redirect(url_for('main.profile'))
 
+
 @auth.route('/signup')
 def signup():
-    return render_template('signup.html')
+    form = SignUpForm()
+    return render_template('signup.html', form=form)
 
 @auth.route('/signup', methods=['POST'])
 def signup_post():
