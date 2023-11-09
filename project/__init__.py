@@ -21,7 +21,7 @@ def create_app():
     csrf = CSRFProtect(app)
 
     login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'
+    login_manager.login_view = 'auth_blueprint.login'
     login_manager.init_app(app)
 
     from .models import Dmuser
@@ -31,12 +31,14 @@ def create_app():
         # since the user_id is just the primary key of our user table, use it in the query for the user
         return db.session.query(Dmuser).get(int(user_id))
 
-    # blueprint for auth routes in our app
-    from .auth import auth as auth_blueprint
-    app.register_blueprint(auth_blueprint)
+    # blueprints:
+    with app.app_context(): # idk, w/o app_context I get a RuntimmeError
+        from .auth import auth_blueprint
+        from .main import main_blueprint
+        from .profile import profile_blueprint
 
-    # blueprint for non-auth parts of app
-    from .main import main as main_blueprint
-    app.register_blueprint(main_blueprint)
+        app.register_blueprint(auth_blueprint)
+        app.register_blueprint(main_blueprint)
+        app.register_blueprint(profile_blueprint)
 
     return app
