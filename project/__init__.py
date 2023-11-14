@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager 
 
 from flask_bootstrap import Bootstrap5
-from flask_wtf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect
 
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
@@ -14,7 +14,7 @@ def create_app():
     
     app.config['SECRET_KEY'] = '9OLWxND4o83j4K4iuopO'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'oracle://ion:admin@127.0.0.1:1521/ORCLCDB'
-
+    
     db.init_app(app)
     
     bootstrap = Bootstrap5(app)

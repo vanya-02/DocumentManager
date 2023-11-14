@@ -1,9 +1,51 @@
 <!-- templates/profile.html -->
 
 {% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
 
 {% block content %}
-<h1 class="title">
-  Welcome, {{ name }}!
-</h1>
-{% endblock %}
+<div class="column is-4 is-offset-4">
+    <h1 class="title">
+      Welcome, {{ current_user.name }}!
+    </h1>
+
+    <h3 class="title">Profile details:</h3>
+    <div class="box">
+        {% with messages = get_flashed_messages(category_filter=['profile']) %}
+        {% if messages %}
+            <div class="notification is-danger">
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+        {% endwith %}
+    <form method="POST" action="{{ url_for('profile_blueprint.profile') }}">
+        {{ profile_form.csrf_token() }}
+        {{ profile_form.email(placeholder=current_user.email) }}
+        {{ profile_form.institution }}
+        {{ profile_form.name(placeholder=current_user.name) }}
+        {{ profile_form.surname(placeholder=current_user.surname) }}
+        {{ profile_form.patronymic(placeholder=current_user.patronymic) }}
+        {{ profile_form.password }}
+        {{ profile_form.update }}
+    </form>
+    </div>
+
+    <h3 class="title">Password:</h3>
+    <div class="box">
+        {% with messages = get_flashed_messages(category_filter=['password']) %}
+        {% if messages %}
+            <div class="notification is-danger">
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('profile_blueprint.profile') }}">
+            {{ password_form.csrf_token }}
+            {{ password_form.old_password }}
+            {{ password_form.new_password }}
+            {{ password_form.update }}
+        </form>
+    </div>
+
+</div>
+{% endblock content %}

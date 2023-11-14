@@ -1,6 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, EmailField, PasswordField, BooleanField
+from flask_login import current_user
+from wtforms import StringField, SubmitField, EmailField, PasswordField, BooleanField, SelectField
 from wtforms.validators import DataRequired, Length, Email
+from project.utils import institutions
+
+
 
 class SignUpForm(FlaskForm):
     email = EmailField('', validators=[Email(), DataRequired(), Length(1, 32)], render_kw={"class": "input is-large", "placeholder": "Your Email"})
@@ -12,8 +16,25 @@ class SignUpForm(FlaskForm):
     submit = SubmitField('Submit', render_kw={"class": "button is-block is-info is-large is-fullwidth"})
 
 class LogInForm(FlaskForm):
-        email = EmailField('', validators=[Email(), DataRequired(), Length(1, 32)], render_kw={"class": "input is-large", "placeholder": "Your Email"})
-        password = PasswordField('', validators=[DataRequired()], render_kw={"class": "input is-large", "placeholder": "Your Password"})
-        remember = BooleanField('Remember me')
+    email = EmailField('', validators=[Email(), DataRequired(), Length(1, 32)], render_kw={"class": "input is-large", "placeholder": "Your Email"})
+    password = PasswordField('', validators=[DataRequired()], render_kw={"class": "input is-large", "placeholder": "Your Password"})
+    remember = BooleanField('Remember me')
 
-        submit = SubmitField('Login', render_kw={"class": "button is-block is-info is-large is-fullwidth"})
+    submit = SubmitField('Login', render_kw={"class": "button is-block is-info is-large is-fullwidth"})
+
+class ProfileForm(FlaskForm):
+    
+    email = EmailField('', render_kw={"disabled": "disabled", "class": "input is-large"})
+    institution = SelectField('', choices=institutions(), render_kw={"class": "input is-large"})
+    name = StringField('', render_kw={"class": "input is-large", "placeholder": "Name"})
+    surname = StringField('', render_kw={"class": "input is-large", "placeholder": "Surname"})
+    patronymic = StringField('', render_kw={"class": "input is-large", "placeholder": "Patronymic"})
+    password = PasswordField('', validators=[DataRequired()], render_kw={"class": "input is-large", "placeholder": "Password"})
+
+    update = SubmitField('Update Info', render_kw={"class": "button is-block is-info is-large is-fullwidth"})
+
+class UpdatePassordForm(FlaskForm):
+    old_password = PasswordField('', validators=[DataRequired()], render_kw={"class": "input is-large", "placeholder": "Old Password"})
+    new_password = PasswordField('', validators=[DataRequired()], render_kw={"class": "input is-large", "placeholder": "New Password"})
+
+    update = SubmitField('Update Password', render_kw={"class": "button is-block is-info is-large is-fullwidth"})
