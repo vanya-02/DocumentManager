@@ -44,9 +44,9 @@ class Dminstitution(Base):
     __tablename__ = 'dminstitutions'
 
     id = Column(Integer, primary_key=True)
-    instcode = Column(NUMBER(5, 0, False), nullable=False)
+    instcode = Column(VARCHAR(20), nullable=False)
     name = Column(VARCHAR(32), nullable=False)
-    additionalinfo = Column(VARCHAR(256), nullable=False)
+    additionalinfo = Column(VARCHAR(256), nullable=True)
 
 
 class Dmdocument(Dminstitution):
