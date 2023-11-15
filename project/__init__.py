@@ -36,9 +36,11 @@ def create_app():
         from .auth import auth_blueprint
         from .main import main_blueprint
         from .profile import profile_blueprint
+        from .navdropdown import navdropdown_blueprint
 
         app.register_blueprint(auth_blueprint)
         app.register_blueprint(main_blueprint)
         app.register_blueprint(profile_blueprint)
+        app.register_blueprint(navdropdown_blueprint)
 
     return app

@@ -1,0 +1,27 @@
+<!-- templates/institutions.html -->
+{% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
+{% block content %}
+    <div class="column is-4 is-offset-4">
+        <h1 class="title">Available Institutions Page</h1>
+        <h2 class="subtitle">Add or Update an Institution:</h2>
+        <div class="box">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="notification is-danger">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+            {% endwith %}
+            {{ render_form(form) }}
+        </div>
+    </div>
+{% endblock content %}
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger">
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+        {% endwith %}
