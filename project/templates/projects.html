@@ -1,0 +1,33 @@
+<!-- templates/projects.html -->
+
+{% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+
+{% block content %}
+    <div class="column is-4 is-offset-4">
+        <h1 class="title">Projects Page</h1>
+        <h2 class="subtitle">Add or Update a Project:</h2>
+        <div class="box">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="notification is-danger">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+            {% endwith %}
+            <form method="POST" action="{{ url_for('navdropdown_blueprint.projects') }}">
+                {{ form.csrf_token() }}
+                {{ form.institution.label }} {{ form.institution }}
+                {{ form.user.label }} {{ form.user(placeholder=current_user.email) }}
+                {{ form.project_name }}
+                {{ form.info }}
+                {{ form.date_from.label }} {{ form.date_from }}
+                {{ form.date_till.label }} {{ form.date_till }}
+                {{ form.is_active.label }} {{ form.is_active }}
+                {{ form.submit }}
+            </form>
+        </div>
+    </div>
+{% endblock content %}
+

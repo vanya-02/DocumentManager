@@ -1,25 +1,11 @@
+# coding: utf-8
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, Table, VARCHAR, text
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Table, VARCHAR
-from sqlalchemy.dialects.oracle import NUMBER
-from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 metadata = Base.metadata
-
-class Dmuser(UserMixin, Base):
-    __tablename__ = 'dmusers'
-
-    id = Column(Integer, primary_key=True)
-    idinstitution = Column(ForeignKey('dminstitutions.id'), nullable=False)
-    username = Column(VARCHAR(32), nullable=False)
-    password = Column(VARCHAR(256), nullable=False)
-    email = Column(VARCHAR(32), nullable=False)
-    isenabled = Column(VARCHAR(32), nullable=False, default='True')
-    name = Column(VARCHAR(32), nullable=True)
-    surname = Column(VARCHAR(32), nullable=True)
-    patronymic = Column(VARCHAR(32), nullable=True)
-
-    dminstitution = relationship('Dminstitution')
 
 
 class Dmdocumenttype(Base):
@@ -46,7 +32,7 @@ class Dminstitution(Base):
     id = Column(Integer, primary_key=True)
     instcode = Column(VARCHAR(20), nullable=False)
     name = Column(VARCHAR(32), nullable=False)
-    additionalinfo = Column(VARCHAR(256), nullable=True)
+    additionalinfo = Column(VARCHAR(256))
 
 
 class Dmdocument(Dminstitution):
@@ -84,17 +70,33 @@ t_dmdocumenttypelerarchy = Table(
 )
 
 
+class Dmuser(UserMixin, Base):
+    __tablename__ = 'dmusers'
+
+    id = Column(Integer, primary_key=True)
+    idinstitution = Column(ForeignKey('dminstitutions.id'))
+    username = Column(VARCHAR(32), nullable=False)
+    password = Column(VARCHAR(256), nullable=False)
+    email = Column(VARCHAR(32), nullable=False)
+    isenabled = Column(VARCHAR(32), nullable=False, server_default=text("'True' "))
+    name = Column(VARCHAR(32))
+    surname = Column(VARCHAR(32))
+    patronymic = Column(VARCHAR(32))
+
+    dminstitution = relationship('Dminstitution')
+
+
 class Dmproject(Base):
     __tablename__ = 'dmprojects'
 
     id = Column(Integer, primary_key=True)
-    idinstitution = Column(ForeignKey('dminstitutions.id'), nullable=False)
-    iduser = Column(ForeignKey('dmusers.id'), nullable=False)
-    name = Column(VARCHAR(256), nullable=False)
-    datefrom = Column(DateTime, nullable=False)
-    datetill = Column(DateTime, nullable=False)
-    additionalinfo = Column(VARCHAR(1000), nullable=False)
-    isactive = Column(VARCHAR(20), nullable=False)
+    idinstitution = Column(ForeignKey('dminstitutions.id'), nullable=True)
+    iduser = Column(ForeignKey('dmusers.id'), nullable=True)
+    name = Column(VARCHAR(256), nullable=True)
+    datefrom = Column(DateTime, nullable=True)
+    datetill = Column(DateTime, nullable=True)
+    additionalinfo = Column(VARCHAR(1000), server_default=text("NULL"), nullable=True)
+    isactive = Column(VARCHAR(20), server_default=text("'True'"))
 
     dminstitution = relationship('Dminstitution')
     dmuser = relationship('Dmuser')

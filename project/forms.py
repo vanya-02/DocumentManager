@@ -1,9 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_login import current_user
-from wtforms import StringField, SubmitField, EmailField, PasswordField, BooleanField, SelectField
+from wtforms import StringField, SubmitField, EmailField, PasswordField, BooleanField, SelectField, DateField
 from wtforms.validators import DataRequired, Length, Email
 from project.utils import institutions
-
 
 
 class SignUpForm(FlaskForm):
@@ -24,13 +23,20 @@ class LogInForm(FlaskForm):
 
 class ProfileForm(FlaskForm):
     email = EmailField('', render_kw={"disabled": "disabled", "class": "input is-large"})
-    institution = SelectField('', choices=institutions(), render_kw={"class": "input is-large"})
+    institution = SelectField('', render_kw={"class": "input is-large"})
     name = StringField('', render_kw={"class": "input is-large"})
     surname = StringField('', render_kw={"class": "input is-large"})
     patronymic = StringField('', render_kw={"class": "input is-large"})
     password = PasswordField('', validators=[DataRequired()], render_kw={"class": "input is-large", "placeholder": "Password"})
 
     update = SubmitField('Update Info', render_kw={"class": "button is-block is-info is-large is-fullwidth"})
+    @classmethod
+    def new(cls):
+        # Instantiate the form
+        form = cls()
+        # Update the choices for the institution field
+        form.institution.choices = institutions()
+        return form
 
 class UpdatePassordForm(FlaskForm):
     old_password = PasswordField('', validators=[DataRequired()], render_kw={"class": "input is-large", "placeholder": "Old Password"})
@@ -45,12 +51,31 @@ class InstitutionForm(FlaskForm):
     info = StringField('', validators=[Length(0, 256)], render_kw={"class": "input is-large", "placeholder": "Additional info"})
 
     submit = SubmitField('Submit', render_kw={"class": "button is-block is-info is-large is-fullwidth"})
-
     @classmethod
     def new(cls):
         # Instantiate the form
         form = cls()
-
         # Update the choices for the institution field
         form.institution.choices = [("add","-Add Institution-"), *institutions()]
         return form
+    
+class ProjectForm(FlaskForm):
+    institution = SelectField('Institution:', render_kw={"class": "input is-large"})
+    user = StringField('User responsable for creation:', render_kw={"class": "input is-large", "disabled": "disabled"})
+    project_name = StringField('', validators=[DataRequired(), Length(1, 20)], render_kw={"class": "input is-large", "placeholder": "Project name"})
+    info = StringField('', validators=[Length(0, 1000)], render_kw={"class": "input is-large", "placeholder": "Additional info"})
+    date_from = DateField('Date From', validators=[DataRequired()], render_kw={"class": "button is-block is-info is-large is-fullwidth"})
+    date_till = DateField('Date To', validators=[DataRequired()], render_kw={"class": "button is-block is-info is-large is-fullwidth"})
+    is_active = BooleanField('Is active?')
+
+    submit = SubmitField('Create project', render_kw={"class": "button is-block is-info is-large is-fullwidth"})
+    @classmethod
+    def new(cls):
+        # Instantiate the form
+        form = cls()
+        # Update the choices for the institution field
+        form.institution.choices = institutions()
+        return form
+    
+
+    

@@ -1,12 +1,11 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
-from flask_login import login_required
-
+from flask_login import login_required, current_user
+from .utils import format_date
 from . import db
-from .forms import InstitutionForm
-from .models import Dminstitution
+from .forms import InstitutionForm, ProjectForm
+from .models import Dminstitution, Dmproject, Dmuser
 
 navdropdown_blueprint = Blueprint('navdropdown_blueprint', __name__)
-
 
 
 @navdropdown_blueprint.route('/upload')
@@ -50,4 +49,38 @@ def institutions_post():
         flash('Selected institution updated successfully!')
 
     return render_template('institutions.html', form=form)
+
+
+@navdropdown_blueprint.route('/projects')
+@login_required
+def projects():
+    form = ProjectForm().new()
+    return render_template('projects.html', form=form)
+
+@navdropdown_blueprint.route('/projects', methods=['POST'])
+@login_required
+def projects_post():
+    form = ProjectForm().new()
+    print(request.form, flush=True)
+    
+    # add new project to the database
+    if form.validate_on_submit():
+        institution = db.session.query(Dminstitution).filter_by(instcode=request.form.get('institution')).first()
+        new_project = Dmproject(
+                        idinstitution = institution.id,
+                        iduser = current_user.id,
+                        name = request.form.get('project_name'),
+                        datefrom = format_date(request.form.get('date_from')),
+                        datetill = format_date(request.form.get('date_till')),
+                        isactive = 'True' if request.form.get('is_active') else 'False')
+        db.session.add(new_project)
+        db.session.commit()
+        flash('New project created!')
+    else:
+        print(form.errors.items())
+        flash('Smth went wrong...')
+
+
+    return render_template('projects.html', form=form)
+
 
