@@ -35,10 +35,10 @@ class Dminstitution(Base):
     additionalinfo = Column(VARCHAR(256))
 
 
-class Dmdocument(Dminstitution):
+class Dmdocument(Base):
     __tablename__ = 'dmdocuments'
 
-    id = Column(ForeignKey('dminstitutions.id'), primary_key=True)
+    id = Column(Integer, primary_key=True)
     idinstitution = Column(Integer, nullable=False)
     iduser = Column(ForeignKey('dmusers.id'), nullable=False)
     idtype = Column(ForeignKey('dmdocumenttypes.id'), nullable=False)

@@ -12,14 +12,14 @@ profile_blueprint = Blueprint('profile_blueprint', __name__)
 @profile_blueprint.route('/profile')
 @login_required
 def profile():
-    profile_form = ProfileForm()
+    profile_form = ProfileForm().new()
     password_form = UpdatePassordForm()
     return render_template('profile.html', profile_form=profile_form, password_form=password_form)
 
 @profile_blueprint.route('/profile', methods=['POST'])
 @login_required
 def profile_post():
-    profile_form = ProfileForm()
+    profile_form = ProfileForm().new()
     password_form = UpdatePassordForm()
     user = db.session.query(Dmuser).filter_by(email=current_user.email).first()
     

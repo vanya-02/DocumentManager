@@ -1,22 +1,15 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, redirect, render_template, current_app, request, flash, send_from_directory
 from flask_login import login_required, current_user
+from werkzeug.utils import secure_filename
 from .utils import format_date
 from . import db
-from .forms import InstitutionForm, ProjectForm
-from .models import Dminstitution, Dmproject, Dmuser
+from .forms import InstitutionForm, ProjectForm, UploadForm
+from .models import Dminstitution, Dmproject, Dmuser, Dmdocument
+from sqlalchemy import select, event
+import datetime
+import os
 
 navdropdown_blueprint = Blueprint('navdropdown_blueprint', __name__)
-
-
-@navdropdown_blueprint.route('/upload')
-@login_required
-def upload():
-    return render_template('upload.html')
-
-@navdropdown_blueprint.route('/upload', methods=['POST'])
-@login_required
-def upload_post():
-    return render_template('upload.html')
 
 
 @navdropdown_blueprint.route('/institutions')
@@ -40,6 +33,7 @@ def institutions_post():
         db.session.add(new_inst)
         db.session.commit()
         flash('New institution added successfully!')
+    # Update inst
     else:
         institution = db.session.query(Dminstitution).filter_by(instcode=request.form.get('institution')).first()
         institution.name = request.form.get('inst_name') or institution.name
@@ -65,22 +59,78 @@ def projects_post():
     
     # add new project to the database
     if form.validate_on_submit():
-        institution = db.session.query(Dminstitution).filter_by(instcode=request.form.get('institution')).first()
-        new_project = Dmproject(
-                        idinstitution = institution.id,
-                        iduser = current_user.id,
-                        name = request.form.get('project_name'),
-                        datefrom = format_date(request.form.get('date_from')),
-                        datetill = format_date(request.form.get('date_till')),
-                        isactive = 'True' if request.form.get('is_active') else 'False')
-        db.session.add(new_project)
-        db.session.commit()
-        flash('New project created!')
+        # This returns a Result object, contains the query... result
+        institution = db.session.execute(select(Dminstitution.id).where(Dminstitution.instcode==request.form.get('institution')))
+        if request.form.get('project_id') == 'add':
+            new_project = Dmproject(
+                            idinstitution = institution.scalar(),
+                            iduser = current_user.id,
+                            name = request.form.get('project_name'),
+                            datefrom = format_date(request.form.get('date_from')),
+                            datetill = format_date(request.form.get('date_till')),
+                            isactive = 'True' if request.form.get('is_active') else 'False')
+            db.session.add(new_project)
+            db.session.commit()
+            flash('New project created!')
+        else:
+            project_row = db.session.query(Dmproject).filter_by(id=request.form.get('project_id')).first()
+            project_row.idinstitution = institution.scalar() 
+            project_row.name = request.form.get('project_name') or project_row.name
+            project_row.datefrom = format_date(request.form.get('date_from')) or project_row.datefrom
+            project_row.datetill = format_date(request.form.get('date_till')) or project_row.datetill
+            project_row.additionalinfo = request.form.get('info') or project_row.additionalinfo
+            project_row.isactive = 'True' if request.form.get('is_active') else 'False'
+            db.session.commit()
+            flash('Project updated!')
     else:
         print(form.errors.items())
         flash('Smth went wrong...')
 
-
     return render_template('projects.html', form=form)
 
 
+
+@navdropdown_blueprint.route('/upload')
+@login_required
+def upload():
+    form = UploadForm().new()
+    return render_template('upload.html', form=form)
+
+# add ajax for updating the uploaded filename, rn it works after posting the form 
+@navdropdown_blueprint.route('/upload', methods=['POST'])
+@login_required
+def upload_post():
+
+    form = UploadForm().new()
+    print(request.form, flush=True)
+    print(request.files, '\n')
+
+    if request.files['file'].filename == '':
+        flash('No file selected')
+        return redirect(request.url)
+    elif form.validate_on_submit(): 
+        # institution = db.session.execute(select(Dminstitution.id).where(Dminstitution.instcode==request.form.get('institution')))
+        
+        new_doc = Dmdocument(
+            idinstitution = "3",
+            iduser = current_user.id,
+            idtype = request.form.get('service'),
+            idproject = request.form.get('project_id'),
+            name = request.files['file'].filename,
+            savedpath = '/'.join([current_app.config['UPLOAD_FOLDER'], request.files['file'].filename]),
+            uploaddate = datetime.date.today(),
+            additionalinfo = request.form.get('info'))
+        db.session.add(new_doc)
+        db.session.commit()
+        # locally save file logic
+        filename = secure_filename(request.files['file'].filename)
+        request.files['file'].save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+        flash('File uploaded successfuly!')
+
+    return render_template('upload.html', form=form)
+
+
+@navdropdown_blueprint.route('/reports')
+@login_required
+def reports():
+    return render_template('reports.html')

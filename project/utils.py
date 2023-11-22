@@ -20,3 +20,6 @@ def projects():
     query = db.session.query(Dmproject.__table__).all()
     result = lambda lst: [(x[0], x[3]) for x in lst]
     return result(query)
+
+class RawSQL:
+    pass

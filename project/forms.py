@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_login import current_user
-from wtforms import FileField, StringField, SubmitField, EmailField, PasswordField, BooleanField, SelectField, DateField
+from wtforms import RadioField, FileField, StringField, SubmitField, EmailField, PasswordField, BooleanField, SelectField, DateField
 from wtforms.validators import DataRequired, Length, Email
 from project.utils import institutions, projects
 
@@ -80,5 +80,20 @@ class ProjectForm(FlaskForm):
         return form
     
 class UploadForm(FlaskForm):
-    file = FileField('Upload file')
-    submit = SubmitField('Create project', render_kw={"class": "button is-block is-info is-large is-fullwidth"})
+    file = FileField('')
+    institution = SelectField('Institution:', render_kw={"class": "input is-large"})
+    service = RadioField('Document Type:', choices=[('2', 'Service - Network'), ('3', 'Service - Safety'), ('4', 'Service - Change'), ('5', 'Service - Backup'),
+                                                    ('6', 'SLA Report'), ('8', 'Design - Analysis'), ('9', 'Design - Transition'), ('10', 'Design - Production'),
+                                                    ('11', 'Design - Test'), ('12', 'Design - Monitoring')])
+    project_id =  SelectField('', render_kw={"class": "input is-large"})
+    info = StringField('', validators=[Length(0, 1000)], render_kw={"class": "input is-large", "placeholder": "Additional info"})
+
+    submit = SubmitField('Upload', render_kw={"class": "button is-block is-info is-large is-fullwidth"})
+    @classmethod
+    def new(cls):
+        # Instantiate the form
+        form = cls()
+        # Update the choices for the institution field and projects
+        form.institution.choices = institutions()
+        form.project_id.choices = projects()
+        return form

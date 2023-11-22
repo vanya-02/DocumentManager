@@ -18,8 +18,9 @@
             {% endwith %}
             <form method="POST" action="{{ url_for('navdropdown_blueprint.projects') }}">
                 {{ form.csrf_token() }}
-                {{ form.institution.label }} {{ form.institution }}
                 {{ form.user.label }} {{ form.user(placeholder=current_user.email) }}
+                {{ form.project_id }}
+                {{ form.institution.label }} {{ form.institution }}
                 {{ form.project_name }}
                 {{ form.info }}
                 {{ form.date_from.label }} {{ form.date_from }}
