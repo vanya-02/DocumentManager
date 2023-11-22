@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_login import current_user
-from wtforms import StringField, SubmitField, EmailField, PasswordField, BooleanField, SelectField, DateField
+from wtforms import FileField, StringField, SubmitField, EmailField, PasswordField, BooleanField, SelectField, DateField
 from wtforms.validators import DataRequired, Length, Email
-from project.utils import institutions
+from project.utils import institutions, projects
 
 
 class SignUpForm(FlaskForm):
@@ -63,6 +63,7 @@ class ProjectForm(FlaskForm):
     institution = SelectField('Institution:', render_kw={"class": "input is-large"})
     user = StringField('User responsable for creation:', render_kw={"class": "input is-large", "disabled": "disabled"})
     project_name = StringField('', validators=[DataRequired(), Length(1, 20)], render_kw={"class": "input is-large", "placeholder": "Project name"})
+    project_id =  SelectField('', render_kw={"class": "input is-large"})
     info = StringField('', validators=[Length(0, 1000)], render_kw={"class": "input is-large", "placeholder": "Additional info"})
     date_from = DateField('Date From', validators=[DataRequired()], render_kw={"class": "button is-block is-info is-large is-fullwidth"})
     date_till = DateField('Date To', validators=[DataRequired()], render_kw={"class": "button is-block is-info is-large is-fullwidth"})
@@ -73,9 +74,11 @@ class ProjectForm(FlaskForm):
     def new(cls):
         # Instantiate the form
         form = cls()
-        # Update the choices for the institution field
+        # Update the choices for the institution field and projects
         form.institution.choices = institutions()
+        form.project_id.choices = [("add","-Add Project-"), *projects()]
         return form
     
-
-    
+class UploadForm(FlaskForm):
+    file = FileField('Upload file')
+    submit = SubmitField('Create project', render_kw={"class": "button is-block is-info is-large is-fullwidth"})
