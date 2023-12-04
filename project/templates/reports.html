@@ -1,12 +1,41 @@
-<!-- templates/index.html -->
-
+<!-- templates/reports.html -->
 {% extends "base.html" %}
-
+{% from 'bootstrap5/form.html' import render_form %}
 {% block content %}
-<h1 class="title">
-  Flask Login Example
-</h1>
-<h2 class="subtitle">
-  Easy authentication and authorization in Flask.
-</h2>
-{% endblock %}
+  <div class="column is-4 is-offset-4">
+    <h1 class="title">Reports Page</h1>
+    <h2 class="subtitle">Check out reports:</h2>
+    <div class="box">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}<div class="notification is-danger">{{ messages[0] }}</div>{% endif %}
+      {% endwith %}
+      {{ render_form(form) }}
+    </div>
+  </div>
+  {% if cols %}
+    <div class="table-container">
+      <table class="table is-fullwidth">
+        <thead>
+          <tr>
+            {% for col in cols %}<th>{{ col }}</th>{% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+            <tr>
+              {% for value in row %}
+                {% if report_type == 'DOCUMENTS' and row.index(value) == 0 %}
+                  <td>
+                    <a href="{{ url_for('navdropdown_blueprint.download_file', name=value) }}">{{ value }}</a>
+                  </td>
+                {% else %}
+                  <td>{{ value }}</td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+{% endblock content %}

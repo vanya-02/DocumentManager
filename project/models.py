@@ -39,7 +39,7 @@ class Dmdocument(Base):
     __tablename__ = 'dmdocuments'
 
     id = Column(Integer, primary_key=True)
-    idinstitution = Column(Integer, nullable=False)
+    idinstitution = Column(ForeignKey('dminstitutions.id'), nullable=False)
     iduser = Column(ForeignKey('dmusers.id'), nullable=False)
     idtype = Column(ForeignKey('dmdocumenttypes.id'), nullable=False)
     idproject = Column(ForeignKey('dmprojects.id'), nullable=False)
@@ -49,6 +49,7 @@ class Dmdocument(Base):
     additionalinfo = Column(VARCHAR(1000), nullable=False)
     groupingdate = Column(DateTime, nullable=False)
 
+    dminstitution = relationship('Dminstitution')
     dmproject = relationship('Dmproject')
     dmdocumenttype = relationship('Dmdocumenttype')
     dmuser = relationship('Dmuser')

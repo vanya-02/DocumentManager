@@ -1,11 +1,11 @@
 from flask import Blueprint, redirect, render_template, current_app, request, flash, send_from_directory
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
-from .utils import format_date
+from .utils import format_date, RawSQL
 from . import db
-from .forms import InstitutionForm, ProjectForm, UploadForm
+from .forms import InstitutionForm, ProjectForm, UploadForm, ReportsForm
 from .models import Dminstitution, Dmproject, Dmuser, Dmdocument
-from sqlalchemy import select, event
+from sqlalchemy import select, event, text
 import datetime
 import os
 
@@ -110,27 +110,57 @@ def upload_post():
         return redirect(request.url)
     elif form.validate_on_submit(): 
         # institution = db.session.execute(select(Dminstitution.id).where(Dminstitution.instcode==request.form.get('institution')))
-        
+        filename = secure_filename(request.files['file'].filename)
+        request.files['file'].save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+
         new_doc = Dmdocument(
             idinstitution = "3",
             iduser = current_user.id,
             idtype = request.form.get('service'),
             idproject = request.form.get('project_id'),
-            name = request.files['file'].filename,
-            savedpath = '/'.join([current_app.config['UPLOAD_FOLDER'], request.files['file'].filename]),
+            name = filename,
+            savedpath = '\\'.join([current_app.config['UPLOAD_FOLDER'], filename]),
             uploaddate = datetime.date.today(),
             additionalinfo = request.form.get('info'))
         db.session.add(new_doc)
         db.session.commit()
         # locally save file logic
-        filename = secure_filename(request.files['file'].filename)
-        request.files['file'].save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+
         flash('File uploaded successfuly!')
 
     return render_template('upload.html', form=form)
 
 
+@navdropdown_blueprint.route('/uploads/<name>')
+def download_file(name):
+    return send_from_directory(current_app.config["UPLOAD_FOLDER"], name)
+
+
 @navdropdown_blueprint.route('/reports')
 @login_required
 def reports():
-    return render_template('reports.html')
+    form = ReportsForm()   
+    return render_template('reports.html', form=form)
+
+@navdropdown_blueprint.route('/reports', methods=['POST'])
+@login_required
+def reports_post():
+    form = ReportsForm()
+    rows, cols = None, None
+
+    if form.validate_on_submit():
+        query = RawSQL[request.form.get('report_type')]
+        report_type = request.form.get('report_type')
+        print(request.form)
+        print(query)
+
+        if query:
+            result = db.session.execute(text(query))
+            cols = result.keys()
+            rows = result.all()
+            print(rows)
+
+    return render_template('reports.html', form=form, rows=rows, cols=cols, report_type=report_type)
+
+
+

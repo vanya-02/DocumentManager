@@ -97,3 +97,11 @@ class UploadForm(FlaskForm):
         form.institution.choices = institutions()
         form.project_id.choices = projects()
         return form
+    
+class ReportsForm(FlaskForm):
+    report_type = SelectField('', render_kw={"class": "input is-large"}, choices=[
+        ('0', '-Choose report type-'),
+        ('INSTITUTIONS', 'Institutions'),
+        ('DOCUMENTS', 'Documents')
+    ])
+    submit = SubmitField('Search', render_kw={"class": "button is-block is-info is-large is-fullwidth"})

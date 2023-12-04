@@ -21,5 +21,16 @@ def projects():
     result = lambda lst: [(x[0], x[3]) for x in lst]
     return result(query)
 
-class RawSQL:
-    pass
+RawSQL = {
+    '0': None,
+    'INSTITUTIONS': 'select instcode, name, additionalinfo from dminstitutions',
+    'DOCUMENTS': '''
+    select d.name, p.name as Project, i.name as Institution, t.typedscr as Document_Type, d.additionalinfo, d.uploaddate
+    from dmdocuments d
+    join dmprojects p on d.idproject = p.id  
+    join dminstitutions i on d.idinstitution = i.id
+    join dmdocumenttypes t on d.idtype = t.id
+    '''
+}
+
+    

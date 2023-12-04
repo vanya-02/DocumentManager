@@ -15,7 +15,8 @@ def create_app():
     app.config['SECRET_KEY'] = '9OLWxND4o83j4K4iuopO'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'oracle://ion:admin@127.0.0.1:1521/ORCLCDB'
     app.config['UPLOAD_FOLDER'] = 'C:\\Users\\crme084\\Desktop\\flask_auth_scotch-master\\project\\DMDocuments'
-    
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000 # 16MB upload limit
+
     db.init_app(app)
     
     bootstrap = Bootstrap5(app)
