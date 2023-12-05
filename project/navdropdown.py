@@ -4,13 +4,15 @@ from werkzeug.utils import secure_filename
 from .utils import format_date, RawSQL
 from . import db
 from .forms import InstitutionForm, ProjectForm, UploadForm, ReportsForm
-from .models import Dminstitution, Dmproject, Dmuser, Dmdocument
+from .models import Dminstitutions, Dmprojects, Dmusers, Dmdocuments
 from sqlalchemy import select, event, text
 import datetime
 import os
 
 navdropdown_blueprint = Blueprint('navdropdown_blueprint', __name__)
 
+
+# TODO: institution form field placeholder update, if possible via AJAX?
 
 @navdropdown_blueprint.route('/institutions')
 @login_required
@@ -25,7 +27,7 @@ def institutions_post():
     print(request.form, flush=True) 
     # Add new inst entry logic
     if request.form.get('institution') == 'add':
-        new_inst = Dminstitution(
+        new_inst = Dminstitutions(
                     instcode=request.form.get('inst_code'),
                     name=request.form.get('inst_name'),
                     additionalinfo=request.form.get('info'))
@@ -35,7 +37,7 @@ def institutions_post():
         flash('New institution added successfully!')
     # Update inst
     else:
-        institution = db.session.query(Dminstitution).filter_by(instcode=request.form.get('institution')).first()
+        institution = db.session.query(Dminstitutions).filter_by(instcode=request.form.get('institution')).first()
         institution.name = request.form.get('inst_name') or institution.name
         institution.instcode = request.form.get('inst_code') or institution.instcode
         institution.additionalinfo = request.form.get('info') or institution.additionalinfo
@@ -60,9 +62,9 @@ def projects_post():
     # add new project to the database
     if form.validate_on_submit():
         # This returns a Result object, contains the query... result
-        institution = db.session.execute(select(Dminstitution.id).where(Dminstitution.instcode==request.form.get('institution')))
+        institution = db.session.execute(select(Dminstitutions.id).where(Dminstitutions.instcode==request.form.get('institution')))
         if request.form.get('project_id') == 'add':
-            new_project = Dmproject(
+            new_project = Dmprojects(
                             idinstitution = institution.scalar(),
                             iduser = current_user.id,
                             name = request.form.get('project_name'),
@@ -73,7 +75,7 @@ def projects_post():
             db.session.commit()
             flash('New project created!')
         else:
-            project_row = db.session.query(Dmproject).filter_by(id=request.form.get('project_id')).first()
+            project_row = db.session.query(Dmprojects).filter_by(id=request.form.get('project_id')).first()
             project_row.idinstitution = institution.scalar() 
             project_row.name = request.form.get('project_name') or project_row.name
             project_row.datefrom = format_date(request.form.get('date_from')) or project_row.datefrom
@@ -109,11 +111,11 @@ def upload_post():
         flash('No file selected')
         return redirect(request.url)
     elif form.validate_on_submit(): 
-        # institution = db.session.execute(select(Dminstitution.id).where(Dminstitution.instcode==request.form.get('institution')))
+        # institution = db.session.execute(select(Dminstitutions.id).where(Dminstitutions.instcode==request.form.get('institution')))
         filename = secure_filename(request.files['file'].filename)
         request.files['file'].save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
 
-        new_doc = Dmdocument(
+        new_doc = Dmdocuments(
             idinstitution = "3",
             iduser = current_user.id,
             idtype = request.form.get('service'),
