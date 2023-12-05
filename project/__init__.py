@@ -26,12 +26,12 @@ def create_app():
     login_manager.login_view = 'auth_blueprint.login'
     login_manager.init_app(app)
 
-    from .models import Dmuser
+    from .models import Dmusers
 
     @login_manager.user_loader
     def load_user(user_id):
         # since the user_id is just the primary key of our user table, use it in the query for the user
-        return db.session.query(Dmuser).get(int(user_id))
+        return db.session.query(Dmusers).get(int(user_id))
 
     # blueprints:
     with app.app_context(): # idk, w/o app_context I get a RuntimmeError

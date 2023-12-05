@@ -14,12 +14,34 @@
             {% endif %}
             {% endwith %}
             {{ render_form(form) }}
+
+            <script>
+                const selectField = document.querySelector('#institution');
+                const infoField = document.querySelector('#info');
+                const nameField = document.querySelector('#inst_name');
+                const codeField = document.querySelector('#inst_code');
+            
+                selectField.addEventListener('change', () => {
+                    // Fetch dynamic placeholder based on selected value
+                    fetch(`/get_placeholder/${selectField.value}`)
+                        .then(response => response.text())
+                        .then(data => {
+                            const dataArray = JSON.parse(data)
+
+                            
+                            nameField.placeholder = dataArray[0];
+                            codeField.placeholder = dataArray[1];
+                            infoField.placeholder = dataArray[2];
+
+                        })
+                        .catch(error => console.error('Error:', error));
+                });
+            </script>
+
         </div>
     </div>
 {% endblock content %}
 
 {% block script %}
-<script>
- 
-</script>
+
 {% endblock script%}

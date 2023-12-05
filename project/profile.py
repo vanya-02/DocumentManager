@@ -4,7 +4,7 @@ from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import ProfileForm, UpdatePassordForm
-from .models import Dmuser, Dminstitution
+from .models import Dmusers, Dminstitutions
 from . import db
 
 profile_blueprint = Blueprint('profile_blueprint', __name__)
@@ -21,11 +21,11 @@ def profile():
 def profile_post():
     profile_form = ProfileForm().new()
     password_form = UpdatePassordForm()
-    user = db.session.query(Dmuser).filter_by(email=current_user.email).first()
+    user = db.session.query(Dmusers).filter_by(email=current_user.email).first()
     
     # change user settings 
     if profile_form.validate_on_submit():
-        institution = db.session.query(Dminstitution).filter(Dminstitution.instcode == request.form.get('institution')).first()
+        institution = db.session.query(Dminstitutions).filter(Dminstitutions.instcode == request.form.get('institution')).first()
         user.idinstitution = (institution.id)
         user.name = request.form.get('name') or current_user.name # In case form field is empty
         user.surname = request.form.get('surname') or current_user.surname

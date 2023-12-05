@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, render_template, current_app, request, flash, send_from_directory
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
-from .utils import format_date, RawSQL
+from .utils import format_date, RawSQL, placeholder_query
 from . import db
 from .forms import InstitutionForm, ProjectForm, UploadForm, ReportsForm
 from .models import Dminstitutions, Dmprojects, Dmusers, Dmdocuments
@@ -11,8 +11,11 @@ import os
 
 navdropdown_blueprint = Blueprint('navdropdown_blueprint', __name__)
 
-
 # TODO: institution form field placeholder update, if possible via AJAX?
+
+@navdropdown_blueprint.route('/get_placeholder/<name>')
+def get_placeholder_values(name):
+    return placeholder_query(name)
 
 @navdropdown_blueprint.route('/institutions')
 @login_required

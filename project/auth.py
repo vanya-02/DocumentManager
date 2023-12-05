@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required
-from .models import Dmuser
+from .models import Dmusers
 from . import db
 from .forms import SignUpForm, LogInForm
 
@@ -19,7 +19,7 @@ def login_post():
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
 
-    user = db.session.query(Dmuser).filter_by(email=email).first()
+    user = db.session.query(Dmusers).filter_by(email=email).first()
     print(request.form, flush=True)
     # check if user actually exists
     # take the user supplied password, hash it, and compare it to the hashed password in database
@@ -46,13 +46,13 @@ def signup_post():
     password = request.form.get('password')
     
     # if this returns a user, then the email already exists in database
-    user = db.session.query(Dmuser).filter_by(email=email).first()
+    user = db.session.query(Dmusers).filter_by(email=email).first()
     if user: # if a user is found, we want to redirect back to signup page so user can try again  
         flash('Email address already exists')
         return redirect(url_for('auth_blueprint.signup'))
 
     # create new user with the form data. Hash the password so plaintext version isn't saved.
-    new_user = Dmuser(
+    new_user = Dmusers(
                 email=email,
                 name=name, 
                 surname=surname, 

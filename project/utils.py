@@ -1,11 +1,12 @@
-from .models import Dminstitution, Dmproject
+from .models import Dminstitutions, Dmprojects
 from . import db
+from sqlalchemy import text
 import datetime
-# from sqlalchemy import col
+import json
 
 def institutions():
     # SQA 1.x style query        
-    query = db.session.query(Dminstitution.__table__).all()
+    query = db.session.query(Dminstitutions.__table__).all()
     result = lambda lst: [(x[1], x[2]) for x in lst]
     # Returns elements (1, 2) e.g. ('EXIM', 'Eximbank')
     return result(query)
@@ -17,9 +18,18 @@ def format_date(date_str):
 
 def projects():
     # SQA 1.x style query
-    query = db.session.query(Dmproject.__table__).all()
+    query = db.session.query(Dmprojects.__table__).all()
     result = lambda lst: [(x[0], x[3]) for x in lst]
     return result(query)
+
+def placeholder_query(value):
+    query = f"select name, instcode, additionalinfo from dminstitutions where instcode = '{value}'"
+    result = db.session.execute(text(query)).first()
+    print(result, type(result))
+
+    x = json.dumps(list(result))
+    print(x, type(x))
+    return x
 
 RawSQL = {
     '0': None,
