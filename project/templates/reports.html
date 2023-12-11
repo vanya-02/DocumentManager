@@ -11,6 +11,7 @@
       {% endwith %}
       {{ render_form(form) }}
     </div>
+    <hr>
   </div>
   {% if cols %}
     <div class="table-container">
@@ -38,4 +39,12 @@
       </table>
     </div>
   {% endif %}
+
+  <script>
+    $(document).ready( function () {
+      $('.table').DataTable();
+  } );
+</script>
+
+
 {% endblock content %}
