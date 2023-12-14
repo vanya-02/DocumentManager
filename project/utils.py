@@ -14,7 +14,7 @@ def institutions():
 def format_date(date_str):
     time = map(int, date_str.split('-'))
     dt = datetime.datetime(*time).strftime('%d-%b-%y')
-    return dt.upper()
+    return dt.upper() 
 
 def projects():
     # SQA 1.x style query
@@ -43,4 +43,3 @@ RawSQL = {
     '''
 }
 
-    
